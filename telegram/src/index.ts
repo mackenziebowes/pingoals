@@ -35,7 +35,6 @@ async function startServer() {
 		if (config.features.autoRegisterCommands) {
 			await registerCommands(telegramBot);
 		}
-		console.log({ telegramBot });
 		// telegramBot can be passed by value here to access context and methods
 		// eg: makeAlertCron(telegramBot);
 		console.log("Telegram bot initialized successfully!");
