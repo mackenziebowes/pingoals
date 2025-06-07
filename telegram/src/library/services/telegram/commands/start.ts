@@ -16,14 +16,14 @@ export const startCommand: TelegramCommand = {
 		}
 
 		// Insert user if they don’t exist
-		const existing = await db.tGUser.findUnique({
+		let existing = await db.tGUser.findUnique({
 			where: {
 				chatId,
 			},
 		});
 
 		if (!existing) {
-			await db.tGUser.create({
+			existing = await db.tGUser.create({
 				data: {
 					chatId,
 					name,
@@ -43,7 +43,7 @@ export const startCommand: TelegramCommand = {
 		let startAt = now;
 		const scheduleInserts = sessionBlocks.map((block) => {
 			const record = {
-				userId: existing?.id ?? chatId,
+				userId: existing.id,
 				label: block.label,
 				startAt: new Date(startAt),
 				durationMin: block.mins,
