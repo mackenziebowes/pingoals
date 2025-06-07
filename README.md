@@ -2,6 +2,15 @@
 
 A Telegram bot that automatically creates and sends productivity schedule alerts (pomodoro-style) to users.
 
+## Future Goals
+I am currently (June 7, 2025) poor ($9 CAD) and can not experiment much further with AI inference.
+When I get some money going:
+- Interviews
+	- Once during onboarding (Build a psych profile for best guesses about priorities and what things actually relax the user)
+	- Daily in the morning (Imitating a standup, collect daily goals or general information about long-running goals)
+- Use a reasoning model to chunk & operationalize goals (You said you wanted to acheive X by Y, I think that means you have to do Z in the next 20 minutes)
+This sort of thing requires experimentation, many tokens will be burned testing interview questions to get useful psych eval inputs
+
 ## Current Features
 
 - Automatic pomodoro-style schedule creation
