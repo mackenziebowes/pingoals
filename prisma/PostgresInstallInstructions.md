@@ -1,6 +1,6 @@
 # How to set up a Remote Postgres DB on Akamai Linux
 
-1. Provision VPS IP & Credentials
+## 1. Provision VPS IP & Credentials
    Provision a VPS running Ubuntu (22.04 or later). You’ll need:
 
 ```bash
@@ -16,20 +16,20 @@ adduser mackenzie
 usermod -aG sudo mackenzie
 ```
 
-2. SSH into the server
+## 2. SSH into the server
 
 ```bash
 ssh root@123.45.67.89
 ```
 
-3. Initialize the server
+## 3. Initialize the server
 
 ```bash
 sudo apt update
 sudo apt install -y postgresql postgresql-contrib
 ```
 
-4. Set up Postgres
+## 4. Set up Postgres
    Start by opening the psql writer program:
 
 ```bash
@@ -38,7 +38,7 @@ sudo -u postgres psql
 
 Then start entering commands - psql commands always end with a `;`
 
-Part A:
+### Part A:
 
 ```sql
 CREATE USER myapp_user WITH PASSWORD 'supersecurepassword';
@@ -48,13 +48,13 @@ note how "myapp_user" is 'naked' - not a string!
 
 Enter these one at a time:
 
-Part B:
+### Part B:
 
 ```sql
 CREATE DATABASE myapp_db;
 ```
 
-Part C:
+### Part C:
 
 ```sql
 GRANT ALL PRIVILEGES ON DATABASE myapp_db TO myapp_user;
@@ -68,7 +68,8 @@ Quit:
 
 But wait! There are `schemas` on databases - you need to grant your admin the ability to modify schemas.
 By default, there is just `public` - let's add it.
-Part D:
+
+### Part D:
 
 ```bash
 # Straight up, I see that we repeat postgres here. I'm writing this note while working on something else, so we may need to
@@ -85,7 +86,7 @@ Part D:
 # This command scopes your next PSQL lines specifically to the app you just created.
 ```
 
-Part E:
+### Part E:
 
 ```sql
 GRANT ALL ON SCHEMA public TO myapp_user;
@@ -99,7 +100,7 @@ Quit:
 
 Done!
 
-6. Restrict UFW settings
+## 6. Restrict UFW settings
 
 ```bash
 sudo ufw allow 22/tcp
@@ -134,7 +135,7 @@ sudo ufw delete n # where n is the offending rule.
 # protip: rerun `sudo ufw status numbered` after deleting - if you delete a rule, following rules shift up so double check the index~!
 ```
 
-7. Open tunnel to server
+## 7. Open tunnel to server
    Here's the command to open a temporary tunnel:
 
 ```bash
@@ -146,7 +147,7 @@ ssh -L 5432:localhost:5432 mackenzie@123.45.67.89
 #   D: Your VPS public IP
 ```
 
-8. Add postgres link to prisma (note: only works while the tunnel is open)
+## 8. Add postgres link to prisma (note: only works while the tunnel is open)
    Here's the ENV variable to insert to your Prisma folder:
 
 ```bash
@@ -158,7 +159,7 @@ DATABASE_URL="postgresql://myapp_user:supersecurepassword@localhost:5432/myapp_d
 #   D: The name of the db from step 4-B
 ```
 
-9. Send it
+## 9. Send it
    You're done!
    As long as your tunnel is open on your machine, prisma should connect and work with your remote Postgres install.
    Bonus:
