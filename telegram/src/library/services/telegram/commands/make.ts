@@ -2,7 +2,7 @@ import { Context, Markup } from "telegraf";
 import { TelegramCommand } from "./index";
 import { db } from "~/utils/db";
 import { ScheduleState } from "@ods/db";
-import { CALLBACKS } from "../utils/enums";
+import { CALLBACKS } from "../utils/callback_enum";
 
 export const makeBlocks: TelegramCommand = {
 	name: "make",
