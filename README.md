@@ -3,13 +3,15 @@
 A Telegram bot that automatically creates and sends productivity schedule alerts (pomodoro-style) to users.
 
 ## Future Goals
+
 I am currently (June 7, 2025) poor ($9 CAD) and can not experiment much further with AI inference.
 When I get some money going:
+
 - Interviews
-	- Once during onboarding (Build a psych profile for best guesses about priorities and what things actually relax the user)
-	- Daily in the morning (Imitating a standup, collect daily goals or general information about long-running goals)
+  - Once during onboarding (Build a psych profile for best guesses about priorities and what things actually relax the user)
+  - Daily in the morning (Imitating a standup, collect daily goals or general information about long-running goals)
 - Use a reasoning model to chunk & operationalize goals (You said you wanted to acheive X by Y, I think that means you have to do Z in the next 20 minutes)
-This sort of thing requires experimentation, many tokens will be burned testing interview questions to get useful psych eval inputs
+  This sort of thing requires experimentation, many tokens will be burned testing interview questions to get useful psych eval inputs
 
 ## Current Features
 
@@ -37,32 +39,47 @@ This sort of thing requires experimentation, many tokens will be burned testing 
 ## Setup Instructions
 
 1. Clone the repository
+   ```bash
+   mkdir -p ~/apps
+   git clone https://github.com/mackenziebowes/pingoals.git ~/apps/pingoals
+   ```
+   This puts the entire monorepo into ~/apps/pingoals
 2. Install dependencies:
+
    ```bash
-   cd pingoals
-   bun install
+   cd ~/apps/pingoals/prisma
+   bun i
+   cd ~/apps/pingoals/telegram
+   bun i
    ```
-3. Generate environment files:
+
+3. Configure environment files:
+
    ```bash
-   cd telegram
-   bun run generate:env
+   cp ~/apps/pingoals/.env.example ~/apps/pingoals/.env
    ```
-4. Set up the PostgreSQL database:
+
+4. Start the Telegram bot:
+
    ```bash
-   cd prisma
-   bun prisma db push
+   cd ~/apps/pingoals
+   bun start
    ```
-5. Start the Telegram bot:
+
+5. Generate a Telegram bot invite link:
    ```bash
-   cd telegram
-   bun run dev
-   ```
-6. Generate a Telegram bot invite link:
-   ```bash
+   cd ~/apps/pingoals
    bun run generate:invite
    ```
 
 ## Extending the Telegram Bot
+
+There are two supported/extensible methods for interacting with the telegram bot:
+
+- Commands
+- Callbacks
+
+Both are registered sequentially when the app is started in `telegram/src/library/services/telegram/commandHandler`
 
 ### Adding New Commands
 
@@ -100,16 +117,8 @@ const commands: TelegramCommand[] = [
 
 ### Creating Custom Schedule Types
 
-Modify the `startCommand` in `telegram/src/library/services/telegram/commands/start.ts` to implement custom schedules:
-
-```typescript
-// Example for a custom 50/10 schedule
-const sessionBlocks = [
-	{ label: "🧠 Deep Work", mins: 50 },
-	{ label: "☕ Break", mins: 10 },
-	// Add more blocks as needed
-];
-```
+In `telegram/src/library/services/telegram/utils/blocks/index` you'll see the colocated declarations of the three built-in block types I've written for you.
+See `telegram/src/library/services/telegram/callbacks/index` for an example of how to register them - here, I've created `add_block` for handling all the "UI" management (sending messages, errors, etc to the chat) and `create_block_callback` for converting the differences (name, description, type) into a standard `TelegramCommand` type.
 
 ### Adding Custom Alert Messages
 
@@ -121,91 +130,6 @@ await bot.telegram.sendMessage(
 	item.user.chatId,
 	`🔔 Time for ${item.label}! ${getCustomMessage(item.label)}`
 );
-
-// Helper function for custom messages
-function getCustomMessage(label: string): string {
-	if (label.includes("Work")) return "Focus intensely for this session!";
-	if (label.includes("Break")) return "Take a moment to rest your mind.";
-	return "";
-}
-```
-
-### Implementing Recurring Schedules
-
-Create a new command for setting up recurring daily schedules:
-
-```typescript
-// dailySchedule.ts
-export const dailyScheduleCommand: TelegramCommand = {
-	name: "daily",
-	description: "Set up a daily schedule",
-
-	async execute(ctx: Context) {
-		// Implementation for creating a recurring daily schedule
-		// Save schedule template to database
-		// Set up cron job to create new schedules each day
-	},
-};
-```
-
-### Adding User Preferences
-
-Extend the TGUser model in `prisma/schema.prisma` to store user preferences:
-
-```prisma
-model TGUser {
-  id           String  @id @default(uuid())
-  chatId       String  @unique
-  name         String?
-  workDuration Int     @default(25)  // Default work duration in minutes
-  breakDuration Int    @default(5)   // Default break duration in minutes
-  timezone     String  @default("UTC")
-  createdAt    DateTime @default(now())
-  schedule     Schedule[]
-}
-```
-
-### Implementing Schedule Templates
-
-Create a new model for schedule templates:
-
-```prisma
-model ScheduleTemplate {
-  id           String   @id @default(uuid())
-  userId       String
-  user         TGUser   @relation(fields: [userId], references: [id])
-  name         String   // "Morning Routine", "Work Session", etc.
-  blocks       Json     // Stored as JSON array of blocks
-  createdAt    DateTime @default(now())
-}
-```
-
-### Adding Analytics and Reporting
-
-Create a command to show users their productivity statistics:
-
-```typescript
-// stats.ts
-export const statsCommand: TelegramCommand = {
-	name: "stats",
-	description: "View your productivity stats",
-
-	async execute(ctx: Context) {
-		const chatId = ctx.chat?.id?.toString();
-		if (!chatId) return;
-
-		// Fetch user data and completed schedule items
-		const user = await db.tGUser.findUnique({
-			where: { chatId },
-			include: { schedule: true },
-		});
-
-		// Calculate and display statistics
-		// ...
-
-		await ctx.reply("Your productivity stats: ...");
-	},
-};
 ```
 
 ## Integration with Frontend
@@ -220,16 +144,38 @@ The project is structured to potentially include a web frontend using the `clien
 
 For production deployment:
 
-1. Build the project:
-
+1. Clone the repository
    ```bash
-   cd telegram
-   bun run build
+   mkdir -p ~/apps
+   git clone https://github.com/mackenziebowes/pingoals.git ~/apps/pingoals
    ```
-
-2. Set up environment variables on your server
-3. Run the compiled application
-4. Consider using PM2 or Docker for process management
+   This puts the entire monorepo into ~/apps/pingoals
+2. Install dependencies:
+   ```bash
+   cd ~/apps/pingoals/prisma
+   bun i
+   cd ~/apps/pingoals/telegram
+   bun i
+   ```
+3. Copy environment files:
+   ```bash
+   sudo cp ~/apps/pingoals/env.example ~/apps/pingoals/.env
+   nano ~/apps/pingoals/.env
+   ```
+   Note: must be done for each folder
+4. Start the Telegram bot:
+   ```bash
+   cd ../
+   sudo cp ~/apps/pingoals/pingoals.service /etc/systemd/system/pingoals.service
+   sudo systemctl daemon-reload
+   sudo systemctl enable pingoals
+   sudo systemctl start pingoals
+   ```
+5. Generate a Telegram bot invite link:
+   ```bash
+   cd ~/apps/pingoals
+   bun run generate:invite
+   ```
 
 ## Contributing
 

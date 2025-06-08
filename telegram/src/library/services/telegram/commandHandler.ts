@@ -18,7 +18,7 @@ export function setupCommandHandler(bot: Telegraf) {
 			}
 		});
 	});
-
+	// Register all callbacks from the callbacks folder
 	callbacks.forEach((callback) => {
 		bot.action(callback.name, async (ctx) => {
 			try {

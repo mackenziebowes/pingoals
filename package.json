@@ -1,0 +1,9 @@
+{
+	"name": "pingoals-mono",
+	"description": "Monorepo for telegram pomodoro",
+	"scripts": {
+		"start": "bunx prisma db push --schema=./prisma/schema.prisma && bun run telegram/src/index.ts",
+		"dev": "bun run telegram/src/index.ts",
+		"generate:invite": "bun run telegram/src/local/generate_telegram_link.ts"
+	}
+}

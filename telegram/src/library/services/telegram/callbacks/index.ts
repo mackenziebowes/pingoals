@@ -1,6 +1,4 @@
-import { addDeepBlocks } from "./add_deep_block";
-import { addDefaultBlocks } from "./add_default_block";
-import { addRapidBlocks } from "./add_rapid_block";
+import { createBlockCallback } from "../utils/blocks/create_block_callback";
 import { Context } from "telegraf";
 
 export interface TelegramCommand {
@@ -11,10 +9,9 @@ export interface TelegramCommand {
 
 // Export array of callback commands
 const callbacks: TelegramCommand[] = [
-	addDeepBlocks,
-	addDefaultBlocks,
-	addRapidBlocks,
-	// Add more callbacks here
+	createBlockCallback("deep", "add a deep block", "deep"),
+	createBlockCallback("default", "add a default block", "default"),
+	createBlockCallback("rapid", "add a rapid block", "rapid"),
 ];
 
 export default callbacks;
